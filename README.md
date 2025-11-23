@@ -1,7 +1,8 @@
 # BitBurner dev repo
 
 ### git.js
-git.js is a github repo cloner
+git.js is a github repo cloner script (it obtains the repository tree from the corresponding GitHub API, and then downloads the content of the repo in the current folder).
+Downloads are done in parallel since commit a2462d9
 
 How to use:
 1. Download the script: in the game Terminal, paste this command:
@@ -29,51 +30,52 @@ Found repository https://github.com/MrPeanutButterz/Bitburner.git
 Repository tree parsed
 
 Downloading files:
-[001/045] ✓ bin/bladerunners/blade.js
-[002/045] ✓ bin/bladerunners4079/bladrunners4079.js
-[003/045] ✓ bin/corporation/bigCorp.js
-[004/045] ✓ bin/corporation/corporation.js
-[005/045] ✓ bin/corporation/smallCorp.js
-[006/045] ✓ bin/genesis/collect.js
-[007/045] ✓ bin/genesis/formula.js
-[008/045] ✓ bin/genesis/hacknet.js
-[009/045] ✓ bin/genesis/pck_grow.js
-[010/045] ✓ bin/genesis/pck_hack.js
-[011/045] ✓ bin/genesis/pck_weak.js
-[012/045] ✓ bin/genesis/servers.js
-[013/045] ✓ bin/genesis/share.js
-[014/045] ✓ bin/genesis/sharePower.js
-[015/045] ✓ bin/genesis/stockMarket.js
-[016/045] ✓ bin/hacktocracy/hashnet.js
-[017/045] ✓ bin/singularity/company.js
-[018/045] ✓ bin/singularity/core.js
-[019/045] ✓ bin/singularity/crime.js
-[020/045] ✓ bin/singularity/faction.js
-[021/045] ✓ bin/singularity/gangs.js
-[022/045] ✓ bin/singularity/gym.js
-[023/045] ✓ bin/singularity/install.js
-[024/045] ✓ bin/singularity/killBN.js
-[025/045] ✓ bin/singularity/neuroflux.js
-[026/045] ✓ bin/singularity/programs.js
-[027/045] ✓ bin/singularity/ram.js
-[028/045] ✓ bin/singularity/reputation.js
-[029/045] ✓ bin/singularity/requirement.js
-[030/045] ✓ bin/singularity/school.js
-[031/045] ✓ bin/underworld/combatGang.js
-[032/045] ✓ bin/underworld/hackGang.js
-[033/045] ✓ lib/corporation.js
-[034/045] ✓ lib/factions.js
-[035/045] ✓ lib/focus.js
-[036/045] ✓ lib/network.js
-[037/045] ✓ lib/settings.js
-[038/045] ✓ system.js
-[039/045] ✓ utils/connect.js
-[040/045] ✓ utils/interface.js
-[041/045] ✓ utils/killNet.js
-[042/045] ✓ utils/monitor.js
-[043/045] ✓ utils/netRam.js
-[044/045] ✓ utils/netRm.js
-[045/045] ✓ utils/netScp.js
+45/45 files prepared for download
+[001/045] ✓ bin/bladerunners/blade.js - Download successful
+[002/045] ✓ bin/bladerunners4079/bladrunners4079.js - Download successful
+[003/045] ✓ bin/corporation/bigCorp.js - Download successful
+[004/045] ✓ bin/corporation/corporation.js - Download successful
+[005/045] ✓ bin/corporation/smallCorp.js - Download successful
+[006/045] ✓ bin/genesis/collect.js - Download successful
+[007/045] ✓ bin/genesis/formula.js - Download successful
+[008/045] ✓ bin/genesis/hacknet.js - Download successful
+[009/045] ✓ bin/genesis/pck_grow.js - Download successful
+[010/045] ✓ bin/genesis/pck_hack.js - Download successful
+[011/045] ✓ bin/genesis/pck_weak.js - Download successful
+[012/045] ✓ bin/genesis/servers.js - Download successful
+[013/045] ✓ bin/genesis/share.js - Download successful
+[014/045] ✓ bin/genesis/sharePower.js - Download successful
+[015/045] ✓ bin/genesis/stockMarket.js - Download successful
+[016/045] ✓ bin/hacktocracy/hashnet.js - Download successful
+[017/045] ✓ bin/singularity/company.js - Download successful
+[018/045] ✓ bin/singularity/core.js - Download successful
+[019/045] ✓ bin/singularity/crime.js - Download successful
+[020/045] ✓ bin/singularity/faction.js - Download successful
+[021/045] ✓ bin/singularity/gangs.js - Download successful
+[022/045] ✓ bin/singularity/gym.js - Download successful
+[023/045] ✓ bin/singularity/install.js - Download successful
+[024/045] ✓ bin/singularity/killBN.js - Download successful
+[025/045] ✓ bin/singularity/neuroflux.js - Download successful
+[026/045] ✓ bin/singularity/programs.js - Download successful
+[027/045] ✓ bin/singularity/ram.js - Download successful
+[028/045] ✓ bin/singularity/reputation.js - Download successful
+[029/045] ✓ bin/singularity/requirement.js - Download successful
+[030/045] ✓ bin/singularity/school.js - Download successful
+[031/045] ✓ bin/underworld/combatGang.js - Download successful
+[032/045] ✓ bin/underworld/hackGang.js - Download successful
+[033/045] ✓ lib/corporation.js - Download successful
+[034/045] ✓ lib/factions.js - Download successful
+[035/045] ✓ lib/focus.js - Download successful
+[036/045] ✓ lib/network.js - Download successful
+[037/045] ✓ lib/settings.js - Download successful
+[038/045] ✓ system.js - Download successful
+[039/045] ✓ utils/connect.js - Download successful
+[040/045] ✓ utils/interface.js - Download successful
+[041/045] ✓ utils/killNet.js - Download successful
+[042/045] ✓ utils/monitor.js - Download successful
+[043/045] ✓ utils/netRam.js - Download successful
+[044/045] ✓ utils/netRm.js - Download successful
+[045/045] ✓ utils/netScp.js - Download successful
 
 ```
 
