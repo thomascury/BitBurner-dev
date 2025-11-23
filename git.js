@@ -165,28 +165,69 @@ export async function main(ns) {
         }
     }
 
+    // Wrapper Promise to report status after the downloads have been performed
+    function download_promise_wrapper (url, file_path) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const success = await ns.wget(url, file_path)
+                if (success) {
+                    resolve(`✓ ${file_path} - Download successful`)
+                } else {
+                    reject(`✗ ${file_path} - Failed to download file`)
+                }
+            } catch (err) {
+                reject(`✗ ${file_path} - Failed to download file (${err})`)
+            }
+        })
+    }
+
     ns.tprint('')
     // Visual counters for user to know progress
-    const total = files.length
-    let count = 0
+    const files_total = files.length
+    let file_count = 0
+    let preparation_successes_count = 0
+    let preparation_failures_count = 0
     // ACTION defines what the user want to do
     switch (ACTION) {
         case 'clone':
             // User want to clone repo
             ns.tprint('Downloading files:')
+            let promises = []
             for (const file of files) {
+                file_count++
                 try {
-                    count++
-                    const success = await ns.wget(file.url, file.file_path)
-                    if (success) {
-                        ns.tprint(`[${count.padZero(3)}/${total.padZero(3)}] ✓ ${file.file_path}`)
-                    } else {
-                        ns.tprint(`[${count.padZero(3)}/${total.padZero(3)}] ✗ ${file.file_path} - File download failure`)
-                    }
+                    // Prepare downloads
+                    promises.push(download_promise_wrapper(file.url, file.file_path))
+                    preparation_successes_count++
                 } catch (err) {
-                    ns.tprint(`[${count.padZero(3)}/${total.padZero(3)}] ✗ ${file.file_path} - ${err}`)
+                    ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✗ ${file.file_path} - ${err}`)
+                    preparation_failures_count++
                 }
-            } break;
+            }
+
+            //Report on preparation status
+            let optional_error_comment = ''
+            if (preparation_failures_count > 0) { optional_error_comment = ` (${preparation_failures_count} preparation failures)` }
+            ns.tprint(`${preparation_successes_count}/${files_total} files prepared for download${optional_error_comment}`)
+
+            // Perform the downloads in parallel
+            const results = await Promise.allSettled(promises);
+
+            // Report downloads status
+            let some_failures = false
+            const results_total = results.length
+            let result_count = 0
+            for (const result of results) {
+                result_count++
+                if (result.status === "fulfilled") {
+                    ns.tprint(`[${result_count.padZero(3)}/${results_total.padZero(3)}] ${result.value}`)
+                } else {
+                    ns.tprint(`[${result_count.padZero(3)}/${results_total.padZero(3)}] ${result.reason}`)
+                    some_failures = true
+                }
+            }
+            if (some_failures) { ns.tprint(`Check console (F12) for download failure(s) reason`); }
+            break;
         case 'unclone':
             // User want to clean up his home folder
             ns.tprint('Removing files:')
