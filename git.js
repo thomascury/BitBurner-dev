@@ -150,7 +150,6 @@ export async function main(ns) {
     //      files = [
     //          {
     //              'file_path': "folder/structure/to/file/in/repo/file.ext" // Will be reused as target
-    //              'temp_path': "local/temporary/path/to/file.ext",
     //              'url' : "Remote repo raw file URL",
     //          },
     //          {...},
