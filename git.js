@@ -215,6 +215,8 @@ try {
     await main(ns)
 } catch (err) {
     // In Bitburner Terminal, we do not include the NS-Emulate module, so we expect it to throw an ImportError
-    // Thus, we ignore ImportError, and throw any other Error
-    if (err.type !== ImportError) { throw err }
+    // Fix: Bitburner doesn't want to throw ImportError, instead it throws a base Error, so we change the filter
+    //   to ignore Errors referring to the NS-Emulate module
+    // Otherwise throw any Error encountered
+    if (!err.message.includes("'./lib/NS-emulate.js'")) { throw err }
 }

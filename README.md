@@ -2,13 +2,21 @@
 
 ### git.js
 git.js is a github repo cloner
+
+How to use:
+1. Download the script: in the game Terminal, paste this command:
+```
+wget https://raw.githubusercontent.com/thomascury/BitBurner-dev/refs/heads/master/git.js git.js
+```
+2. Clone any Public GitHub repo:
 ```
 Usage:
   run git.js clone (<GitHub repo URL> | <owner> <repo>) [<tree_sha or branch_name>]     Clone GitHub repo in current directory
   run git.js unclone (<GitHub repo URL> | <owner> <repo>) [<tree_sha or branch_name>]   Remove local files previously cloned from GitHub repo
 ```
 
-Tip to use it: you can `alias git="run git.js"`, and then use the script like the git app:
+
+Nice tip: you can define an alias for the command `alias git="run git.js"`, and then use the script like the git app:
 ```
 git clone <URL>
 Found repository (...)
