@@ -233,11 +233,11 @@ export async function main(ns) {
             ns.tprint('Removing files:')
             for (const file of files) {
                 try {
-                    count++
+                    file_count++
                     ns.rm(file.file_path)
-                    ns.tprint(`[${count.padZero(3)}/${total.padZero(3)}] ✓ Deleted: ${file.file_path}`)
+                    ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✓ Deleted: ${file.file_path}`)
                 } catch (e) {
-                    ns.tprint(`[${count.padZero(3)}/${total.padZero(3)}] ✗ ${file.file_path} - Error: ${e}`)
+                    ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✗ ${file.file_path} - Error: ${e}`)
                 }
             } break;
         default:
