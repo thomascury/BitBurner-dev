@@ -190,7 +190,7 @@ export async function main(ns) {
     // ACTION defines what the user want to do
     switch (ACTION) {
         case 'clone':
-            // User want to clone repo
+            // User wants to clone repo
             ns.tprint('Downloading files:')
             let promises = []
             for (const file of files) {
@@ -229,7 +229,7 @@ export async function main(ns) {
             if (some_failures) { ns.tprint(`Check console (F12) for download failure(s) reason`); }
             break;
         case 'unclone':
-            // User want to clean up his home folder
+            // User wants to clean up his home folder
             ns.tprint('Removing files:')
             for (const file of files) {
                 try {
