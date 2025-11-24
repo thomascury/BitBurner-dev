@@ -170,8 +170,7 @@ export async function main(ns) {
     ns.tprint('')
     // ACTION defines what the user wants to do
     switch (ACTION) {
-        case 'clone':
-            // User wants to clone repo
+        case 'clone': // User wants to clone repo
             ns.tprint('Downloading files:')
             // Prepare downloads
             let promises = []
@@ -197,11 +196,10 @@ export async function main(ns) {
             results.forEach((result, index) => {
                 ns.tprint(`[${(index+1).pad0(3)}/${results.length.pad0(3)}] ${result.value || (result.reason) }`)
             })
+
             // In case of rejected download Promise(s), print a helper comment to check console for errors
-            if (results.filter(result => {return result.status === 'rejected'}).length > 0) { ns.tprint(`Check console (F12) for download failure(s) reason`); }
-            break;
-        case 'unclone':
-            // User wants to clean up his home folder
+            if (results.filter(result => {return result.status === 'rejected'}).length > 0) { ns.tprint(`Check console (F12) for download failure(s) reason`); } break;
+        case 'unclone': // User wants to clean up his home folder
             ns.tprint('Removing files:')
             files.forEach((file, index) => {
                 try {
@@ -211,10 +209,8 @@ export async function main(ns) {
                     ns.tprint(`[${(index+1).pad0(3)}/${files.length.pad0(3)}] ✗ ${file.file_path} - Error: ${e}`)
                 }
             }); break;
-        default:
-            // Should not happen with the previous checks, but fallback is here anyway
+        default: // Should not happen with the previous checks, but fallback is here anyway
             if (!assert(false, `Wrong action ${ACTION}`, usage)) { return } break;
-
     }
 }
 
