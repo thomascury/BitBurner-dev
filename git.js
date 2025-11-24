@@ -159,13 +159,13 @@ export async function main(ns) {
         if (tree.type === 'blob' && tree.path.endsWith('.js')) {
             files.push({
                     'file_path': tree.path,
-                    'url' : `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${TREE_SHA}/${tree.path}`,
+                    'url' : `shttps://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${TREE_SHA}/${tree.path}`,
                 }
             )
         }
     }
 
-    // Wrapper Promise to report status after the downloads have been performed
+    // Wrapper Promise to report status after the download has been performed
     function download_promise_wrapper (url, file_path) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -185,9 +185,9 @@ export async function main(ns) {
     // Visual counters for user to know progress
     const files_total = files.length
     let file_count = 0
-    let preparation_successes_count = 0
-    let preparation_failures_count = 0
-    // ACTION defines what the user want to do
+    let files_prepared = 0
+    let preparation_failures = 0
+    // ACTION defines what the user wants to do
     switch (ACTION) {
         case 'clone':
             // User wants to clone repo
@@ -198,35 +198,29 @@ export async function main(ns) {
                 try {
                     // Prepare downloads
                     promises.push(download_promise_wrapper(file.url, file.file_path))
-                    preparation_successes_count++
+                    files_prepared++
                 } catch (err) {
                     ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✗ ${file.file_path} - ${err}`)
-                    preparation_failures_count++
+                    preparation_failures++
                 }
             }
 
             //Report on preparation status
             let optional_error_comment = ''
-            if (preparation_failures_count > 0) { optional_error_comment = ` (${preparation_failures_count} preparation failures)` }
-            ns.tprint(`${preparation_successes_count}/${files_total} files prepared for download${optional_error_comment}`)
+            if (preparation_failures > 0) { optional_error_comment = ` (${preparation_failures} preparation failures)` }
+            ns.tprint(`${files_prepared}/${files_total} files prepared for download${optional_error_comment}`)
 
             // Perform the downloads in parallel
             const results = await Promise.allSettled(promises);
 
             // Report downloads status
-            let some_failures = false
             const results_total = results.length
             let result_count = 0
             for (const result of results) {
                 result_count++
-                if (result.status === "fulfilled") {
-                    ns.tprint(`[${result_count.padZero(3)}/${results_total.padZero(3)}] ${result.value}`)
-                } else {
-                    ns.tprint(`[${result_count.padZero(3)}/${results_total.padZero(3)}] ${result.reason}`)
-                    some_failures = true
-                }
+                ns.tprint(`[${result_count.padZero(3)}/${results_total.padZero(3)}] ${result.value || (result.reason) }`)
             }
-            if (some_failures) { ns.tprint(`Check console (F12) for download failure(s) reason`); }
+            if (results.filter(result => {return result.status === 'rejected'}).length > 0) { ns.tprint(`Check console (F12) for download failure(s) reason`); }
             break;
         case 'unclone':
             // User wants to clean up his home folder
