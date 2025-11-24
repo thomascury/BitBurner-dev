@@ -1,3 +1,5 @@
+import { basename } from "node:path"
+
 // Define Error catching behaviour
 // true:    on catch, throw Error
 // false:   on catch, print the error and return
@@ -17,15 +19,16 @@ const DEFAULTS = {
 const ALLOWED_ARG_VALUES = {
     'action': ['clone', 'unclone'],
 }
-// Validation checker for argument
-const VALIDATE_ARG = {
+// Validation checker for arguments
+// Added script extension validator
+const VALIDATE = {
     'min_pos_args_length': length => length >= DEFAULTS.min_pos_args_length,
     'action': action => ALLOWED_ARG_VALUES.action.includes(action),
     'owner': owner => owner !== DEFAULTS.owner && encodeURI(owner) === owner,
     'repo': repo => repo !== DEFAULTS.repo && encodeURI(repo) === repo,
     'tree_sha': tree_sha => encodeURI(tree_sha) === tree_sha,
-    'tree_url': tree_url => { try { return Boolean(new URL(tree_url)) } catch (_) { return false }
-    },
+    'tree_url': tree_url => { try { return Boolean(new URL(tree_url)) } catch (_) { return false } },
+    'is_a_script': file_name => { return file_name.endsWith('.js') || file_name.endsWith('.ns') || file_name.endsWith('.script') },
 }
 
 // Padding functions for numbers display
@@ -37,6 +40,11 @@ String.prototype.pad0= function(len, c){
 }
 Number.prototype.pad0= function(len, c){
     return String(this).pad0(len,c);
+}
+
+// Adding script extension validation to String prototype
+String.prototype.is_a_script = function(){
+    return VALIDATE.is_a_script(basename(this.valueOf()))
 }
 
 /** @param {NS} ns */
@@ -71,11 +79,11 @@ export async function main(ns) {
 
     // Parse positional arguments
     function parsePositionalArgs(args) {
-        if (!assert(VALIDATE_ARG.min_pos_args_length(args.length), 'Missing arguments.', usage)) {return}
+        if (!assert(VALIDATE.min_pos_args_length(args.length), 'Missing arguments.', usage)) {return}
 
         // args[0] is mandatory argument <action>, that should be included in ALLOWED_ARG_VALUES.action
         let ACTION = args[0]
-        if (!assert(VALIDATE_ARG.action(ACTION), `Wrong action '${ACTION}', should one of [${ALLOWED_ARG_VALUES.action}]`, usage)) {return}
+        if (!assert(VALIDATE.action(ACTION), `Wrong action '${ACTION}', should one of [${ALLOWED_ARG_VALUES.action}]`, usage)) {return}
 
         // Set initial values to simplify missing argument check at the end of the parser
         let OWNER = DEFAULTS.owner
@@ -101,9 +109,9 @@ export async function main(ns) {
         }
 
         // Checking argument before returning values
-        if (!assert(VALIDATE_ARG.owner(OWNER), `Missing or invalid argument <owner>: '${OWNER}'`, usage)) {return}
-        if (!assert(VALIDATE_ARG.repo(REPO), `Missing or invalid argument <repo>: '${REPO}'`, usage)) {return}
-        if (!assert(VALIDATE_ARG.tree_sha(TREE_SHA), `Missing or invalid argument <tree_sha>: '${TREE_SHA}'`, usage)) {return}
+        if (!assert(VALIDATE.owner(OWNER), `Missing or invalid argument <owner>: '${OWNER}'`, usage)) {return}
+        if (!assert(VALIDATE.repo(REPO), `Missing or invalid argument <repo>: '${REPO}'`, usage)) {return}
+        if (!assert(VALIDATE.tree_sha(TREE_SHA), `Missing or invalid argument <tree_sha>: '${TREE_SHA}'`, usage)) {return}
         return [ACTION, OWNER, REPO, TREE_SHA]
     }
 
@@ -119,7 +127,7 @@ export async function main(ns) {
     const tree_json_file = `${OWNER}_${REPO}_${TREE_SHA}.tree.json`
 
     // Check if tree_url is a valid URL
-    if (!assert(VALIDATE_ARG.tree_url(tree_url), `Tree URL is not valid, please check your parameters: '${tree_url}'`)) {return}
+    if (!assert(VALIDATE.tree_url(tree_url), `Tree URL is not valid, please check your parameters: '${tree_url}'`)) {return}
 
     let response_data = null
     try{
@@ -143,7 +151,7 @@ export async function main(ns) {
     // Iterate over the tree JSON data to generate a files Map
     let files = []
     response_data.tree.forEach(tree => {
-        if (tree.type === 'blob' && tree.path.endsWith('.js')) {
+        if (tree.type === 'blob' && tree.path.is_a_script()) {
             files.push({
                     'file_path': tree.path,
                     'url' : `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${TREE_SHA}/${tree.path}`,
