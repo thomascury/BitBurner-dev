@@ -146,6 +146,11 @@ Currently implemented NS functions:
 
 To use it, dynamically import the module at runtime:
 ```
+/** @param {NS} ns */
+export async function main(ns) {
+    // Do stuff here
+}
+
 // Dynamic module importer to manage the optional import of the NS-emulate module to test script locally
 // Source: https://stackoverflow.com/a/65563996
 class ImportError extends Error {}
@@ -157,16 +162,12 @@ const loadModule = async (modulePath) => {
     }
 }
 
-/** @param {NS} ns */
-export async function main(ns) {
-    // Do stuff here
-}
-
 try {
     // This bit is included to allow for local testing of the script, with NS-Emulate.NS replicating
     //  functions available in Bitburner NS API
     const NS_Emulate = await loadModule('./lib/NS-emulate.js')
     const ns = new NS_Emulate.NS(process.argv.slice(2))
+    // Call main (when run locally, we have to call it ourselves, unlike in-game)
     await main(ns)
 } catch (err) {
     // In Bitburner Terminal, we do not include the NS-Emulate module, so we expect it to throw an ImportError
