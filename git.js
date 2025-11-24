@@ -248,7 +248,7 @@ try {
     const ns = new NS_Emulate.NS(process.argv.slice(2))
     await main(ns)
 } catch (err) {
-    // In Bitburner Terminal, we do not include the NS-Emulate module, so we expect it to throw an ImportError
+    // Bugged: In Bitburner Terminal, we do not include the NS-Emulate module, so we expect it to throw an ImportError
     // Fix: Bitburner doesn't want to throw ImportError, instead it throws a base Error, so we change the filter
     //   to ignore Errors referring to the NS-Emulate module
     // Otherwise throw any Error encountered
