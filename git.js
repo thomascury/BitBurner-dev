@@ -1,14 +1,3 @@
-// Dynamic module importer to manage the optional import of the NS-emulate module to test script locally
-// Source: https://stackoverflow.com/a/65563996
-class ImportError extends Error {}
-const loadModule = async (modulePath) => {
-    try {
-        return await import(modulePath)
-    } catch (err) {
-        throw new ImportError(`Unable to import module ${modulePath} (${err})`)
-    }
-}
-
 // Define Error catching behaviour
 // true:    on catch, throw Error
 // false:   on catch, print the error and return
@@ -241,11 +230,23 @@ export async function main(ns) {
     }
 }
 
+// Dynamic module importer to manage the optional import of the NS-emulate module to test script locally
+// Source: https://stackoverflow.com/a/65563996
+class ImportError extends Error {}
+const loadModule = async (modulePath) => {
+    try {
+        return await import(modulePath)
+    } catch (err) {
+        throw new ImportError(`Unable to import module ${modulePath} (${err})`)
+    }
+}
+
 try {
     // This bit is included to allow for local testing of the script, with NS-Emulate.NS replicating
     //  functions available in Bitburner NS API, namely: args, tprint, read, write, rm and wget
     const NS_Emulate = await loadModule('./lib/NS-emulate.js')
     const ns = new NS_Emulate.NS(process.argv.slice(2))
+    // Call main (when run locally, we have to call it ourselves, unlike in-game)
     await main(ns)
 } catch (err) {
     // Bugged: In Bitburner Terminal, we do not include the NS-Emulate module, so we expect it to throw an ImportError
