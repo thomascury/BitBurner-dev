@@ -148,7 +148,7 @@ export async function main(ns) {
         if (tree.type === 'blob' && tree.path.endsWith('.js')) {
             files.push({
                     'file_path': tree.path,
-                    'url' : `shttps://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${TREE_SHA}/${tree.path}`,
+                    'url' : `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${TREE_SHA}/${tree.path}`,
                 }
             )
         }
