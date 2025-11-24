@@ -30,17 +30,20 @@ const VALIDATE_ARG = {
 
 // Padding functions for numbers display
 // Source: https://stackoverflow.com/a/10074468
-String.prototype.padZero= function(len, c){
+String.prototype.pad0= function(len, c){
     var s= '', c= c || '0', len= (len || 2)-this.length;
     while(s.length<len) s+= c;
     return s+this;
 }
-Number.prototype.padZero= function(len, c){
-    return String(this).padZero(len,c);
+Number.prototype.pad0= function(len, c){
+    return String(this).pad0(len,c);
 }
 
 /** @param {NS} ns */
 export async function main(ns) {
+    // #############
+    // # Functions definition
+    // #############
 
     // Print usage to console, called in case of argument error
     function usage() {
@@ -104,6 +107,10 @@ export async function main(ns) {
         return [ACTION, OWNER, REPO, TREE_SHA]
     }
 
+    // #############
+    // # Main code execution
+    // #############
+
     // Evaluate arguments
     const positionalArgs = parsePositionalArgs(ns.args)
     if (positionalArgs === undefined) { return }    // Soft fail (parsePositionalArgs returns nothing on assert fail)
@@ -117,11 +124,9 @@ export async function main(ns) {
     let response_data = null
     try{
         // Retrieve tree json description from tree_url and write it to tree_json_file
-        const success = await ns.wget(tree_url, tree_json_file)
-        if (success) {
+        if (await ns.wget(tree_url, tree_json_file)) {
             ns.tprint(`Found repository https://github.com/${OWNER}/${REPO}.git`)
-            const content = ns.read(tree_json_file)
-            response_data = JSON.parse(content)
+            response_data = JSON.parse(ns.read(tree_json_file))
             ns.tprint(`Repository tree parsed`)
             // Once the tree is parsed to JSON data, we can delete the file
             ns.rm(tree_json_file)
@@ -136,15 +141,8 @@ export async function main(ns) {
     if (!assert(response_data !== null, 'Error parsing tree JSON file')) { return }
 
     // Iterate over the tree JSON data to generate a files Map
-    //      files = [
-    //          {
-    //              'file_path': "folder/structure/to/file/in/repo/file.ext" // Will be reused as target
-    //              'url' : "Remote repo raw file URL",
-    //          },
-    //          {...},
-    //      ]
     let files = []
-    for (const tree of response_data.tree) {
+    response_data.tree.forEach(tree => {
         if (tree.type === 'blob' && tree.path.endsWith('.js')) {
             files.push({
                     'file_path': tree.path,
@@ -152,14 +150,13 @@ export async function main(ns) {
                 }
             )
         }
-    }
+    })
 
-    // Wrapper Promise to report status after the download has been performed
+    // Wrapper Promise to report status after the download request has been handled
     function download_promise_wrapper (url, file_path) {
         return new Promise(async (resolve, reject) => {
             try {
-                const success = await ns.wget(url, file_path)
-                if (success) {
+                if (await ns.wget(url, file_path)) {
                     resolve(`✓ ${file_path} - Download successful`)
                 } else {
                     reject(`✗ ${file_path} - Failed to download file`)
@@ -171,58 +168,49 @@ export async function main(ns) {
     }
 
     ns.tprint('')
-    // Visual counters for user to know progress
-    const files_total = files.length
-    let file_count = 0
-    let files_prepared = 0
-    let preparation_failures = 0
     // ACTION defines what the user wants to do
     switch (ACTION) {
         case 'clone':
             // User wants to clone repo
             ns.tprint('Downloading files:')
+            // Prepare downloads
             let promises = []
-            for (const file of files) {
-                file_count++
+            let files_prepared = 0
+            let preparation_failures = 0
+            files.forEach((file) => {
                 try {
-                    // Prepare downloads
-                    promises.push(download_promise_wrapper(file.url, file.file_path))
-                    files_prepared++
+                    promises.push(download_promise_wrapper(file.url, file.file_path)); files_prepared++
                 } catch (err) {
-                    ns.tprint(` ✗ ${file.file_path} - File could not be prepared for download (${err})`)
-                    preparation_failures++
+                    ns.tprint(` ✗ ${file.file_path} - File could not be prepared for download (${err})`); preparation_failures++
                 }
-            }
+            })
 
             //Report on preparation status
             let optional_error_comment = ''
             if (preparation_failures > 0) { optional_error_comment = ` (${preparation_failures} preparation failures)` }
-            ns.tprint(`${files_prepared}/${files_total} files prepared for download${optional_error_comment}`)
+            ns.tprint(`${files_prepared}/${files.length} files prepared for download${optional_error_comment}`)
 
             // Perform the downloads in parallel
             const results = await Promise.allSettled(promises);
 
             // Report downloads status
-            const results_total = results.length
-            let result_count = 0
-            for (const result of results) {
-                result_count++
-                ns.tprint(`[${result_count.padZero(3)}/${results_total.padZero(3)}] ${result.value || (result.reason) }`)
-            }
+            results.forEach((result, index) => {
+                ns.tprint(`[${(index+1).pad0(3)}/${results.length.pad0(3)}] ${result.value || (result.reason) }`)
+            })
+            // In case of rejected download Promise(s), print a helper comment to check console for errors
             if (results.filter(result => {return result.status === 'rejected'}).length > 0) { ns.tprint(`Check console (F12) for download failure(s) reason`); }
             break;
         case 'unclone':
             // User wants to clean up his home folder
             ns.tprint('Removing files:')
-            for (const file of files) {
+            files.forEach((file, index) => {
                 try {
-                    file_count++
                     ns.rm(file.file_path)
-                    ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✓ Deleted: ${file.file_path}`)
+                    ns.tprint(`[${(index+1).pad0(3)}/${files.length.pad0(3)}] ✓ Deleted: ${file.file_path}`)
                 } catch (e) {
-                    ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✗ ${file.file_path} - Error: ${e}`)
+                    ns.tprint(`[${(index+1).pad0(3)}/${files.length.pad0(3)}] ✗ ${file.file_path} - Error: ${e}`)
                 }
-            } break;
+            }); break;
         default:
             // Should not happen with the previous checks, but fallback is here anyway
             if (!assert(false, `Wrong action ${ACTION}`, usage)) { return } break;
