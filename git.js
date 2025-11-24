@@ -200,7 +200,7 @@ export async function main(ns) {
                     promises.push(download_promise_wrapper(file.url, file.file_path))
                     files_prepared++
                 } catch (err) {
-                    ns.tprint(`[${file_count.padZero(3)}/${files_total.padZero(3)}] ✗ ${file.file_path} - ${err}`)
+                    ns.tprint(` ✗ ${file.file_path} - File could not be prepared for download (${err})`)
                     preparation_failures++
                 }
             }
